@@ -1,0 +1,14 @@
+{
+    "rachunek testowy": {
+        "key": "rachunek tesowy",
+        "apartment_key": "Polanka",
+        "amount_pln": 1000,
+        "due_date": "30.02.2027"
+    },
+    "rachunek pomocniczy":{
+        "key": "rachunek pomocniczy",
+        "apartment_key": "Polanka",
+        "amount_pln": 2500,
+        "due_date": "32.12.2027"
+    }
+}
