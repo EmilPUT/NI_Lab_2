@@ -3,16 +3,15 @@ from typing import Dict, List
 
 import json
 
-
 class Parameters(BaseModel):
     apartments_json_path: str = 'data/apartments.json'
     tenants_json_path: str = 'data/tenants.json'
-
+    transfers_json_path: str = 'data/transfers.json'
+    bills_json_path: str = 'data/bills.json'
 
 class Room(BaseModel):
     name: str
     area_m2: float
-
 
 class Apartment(BaseModel):
     key: str
@@ -84,12 +83,16 @@ class Manager:
 
         self.apartments = {}
         self.tenants = {}
+        self.transfers = []
+        self.bills = {}
        
         self.load_data()
 
     def load_data(self):
         self.apartments = Apartment.from_json_file(self.parameters.apartments_json_path)
         self.tenants = Tenant.from_json_file(self.parameters.tenants_json_path)
+        self.transfers = Transfer.from_json_file(self.parameters.transfers_json_path)
+        self.bills = Bill.from_json_file(self.parameters.bills_json_path)
 
 if __name__ == '__main__':
     parameters = Parameters()
@@ -102,4 +105,10 @@ if __name__ == '__main__':
 
     for tenant in manager.tenants.values():
         print(tenant.name, tenant.apartment, tenant.room, tenant.rent_pln, tenant.deposit_pln, tenant.date_agreement_from, tenant.date_agreement_to)
-    
+
+    for transfer in manager.transfers:
+        if transfer.tenant == tenant.name:
+            print('  ', transfer.amount_pln, transfer.date, transfer.settlement_year, transfer.settlement_month)
+
+    for bill in manager.bills.values():
+        print(bill.key, bill.amount_pln, bill.apartment_key, bill.due_date)
