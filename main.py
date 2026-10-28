@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Dict
+from typing import Dict, List
 
 import json
 
@@ -7,7 +7,6 @@ import json
 class Parameters(BaseModel):
     apartments_json_path: str = 'data/apartments.json'
     tenants_json_path: str = 'data/tenants.json'
-    bills_json_path: str = 'data/bills.json'
 
 
 class Room(BaseModel):
@@ -63,20 +62,34 @@ class Tenant(BaseModel):
         return {key: Tenant(**tenant) for key, tenant in data.items()}
     
 
+class Transfer(BaseModel):
+    amount_pln: float
+    date: str
+    settlement_year: int | None
+    settlement_month: int | None
+    tenant: str
+
+    @staticmethod
+    def from_json_file(file_path: str) -> List['Transfer']:
+        data = None
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+        assert isinstance(data, list), "Expected a list of transfers"
+        return [Transfer(**transfer) for transfer in data]
+    
+
 class Manager:
     def __init__(self, parameters: Parameters):
         self.parameters = parameters 
 
         self.apartments = {}
         self.tenants = {}
-        self.bills = {}
        
         self.load_data()
 
     def load_data(self):
         self.apartments = Apartment.from_json_file(self.parameters.apartments_json_path)
         self.tenants = Tenant.from_json_file(self.parameters.tenants_json_path)
-        self.bills = Bill.from_json_file(self.parameters.bills_json_path)
 
 if __name__ == '__main__':
     parameters = Parameters()
@@ -89,6 +102,4 @@ if __name__ == '__main__':
 
     for tenant in manager.tenants.values():
         print(tenant.name, tenant.apartment, tenant.room, tenant.rent_pln, tenant.deposit_pln, tenant.date_agreement_from, tenant.date_agreement_to)
-
-    for bill in manager.bills.values():
-        print(bill.key, bill.amount_pln, bill.apartment_key, bill.due_date)
+    
